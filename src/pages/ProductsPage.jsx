@@ -29,9 +29,21 @@ export default function ProductsPage() {
     }, []);
 
     async function handleCreate() {
+        if (!name || !price) {
+            showError("Fill all fields");
+            return;
+        }
+
+        if (price <= 0) {
+            showError("The price cannot be less than or equal to zero.");
+            return;
+        }
+
         try {
             await createProduct({ name, price });
             showSuccess("Product added successfully");
+            setName("");
+            setPrice("");
             load();
         } catch {
             showError("Error adding product");

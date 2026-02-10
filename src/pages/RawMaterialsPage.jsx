@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react";
 
 import EntityCard from "../components/EntityCard";
+import { showError, showSuccess } from "../components/toast";
 
 export default function RawMaterialsPage() {
 
@@ -31,19 +32,48 @@ export default function RawMaterialsPage() {
     }, []);
 
     async function handleCreate() {
-        await createRawMaterial({
-            name,
-            stockQuantity
-        });
 
-        setName("");
-        setStockQuantity("");
-        load();
+        const numericStock = Number(stockQuantity);
+
+        if (!name || !stockQuantity) {
+            showError("Fill all fields");
+            return;
+        }
+
+        if (numericStock <= 0) {
+            showError("Stock cannot be less than or equal to zero");
+            return;
+        }
+
+        try {
+            console.log(numericStock);
+            await createRawMaterial({
+                name,
+                stockQuantity: numericStock
+            });
+
+            showSuccess("Stock added")
+
+            setName("");
+            setStockQuantity("");
+
+            load();
+        }
+        catch {
+            showError("Error adding stock");
+        }
     }
 
+
     async function handleDelete(id) {
-        await deleteRawMaterial(id);
-        load();
+        try {
+            await deleteRawMaterial(id);
+            showSuccess("Stock removed");
+            load();
+        }
+        catch {
+            showError("Error removing stock");
+        }
     }
 
     return (
