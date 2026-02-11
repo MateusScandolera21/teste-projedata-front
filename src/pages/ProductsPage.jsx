@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getProducts, createProduct, deleteProduct } from "../services/api";
+import { getProducts, createProduct, deleteProduct, updateProduct } from "../services/api";
 import {
     Box,
     Heading,
@@ -31,6 +31,7 @@ export default function ProductsPage() {
     const [name, setName] = useState("");
     const [price, setPrice] = useState("");
     const [open, setOpen] = useState(false);
+    const [editingProduct, setEditingProduct] = useState(null);
 
     function load() {
         getProducts().then(setProducts);
@@ -40,30 +41,48 @@ export default function ProductsPage() {
         load();
     }, []);
 
-    async function handleCreate() {
+    async function handleSave() {
+
+        const numericPrice = Number(price);
+
         if (!name || !price) {
             showError("Fill all fields");
             return;
         }
 
-        if (price <= 0) {
-            showError("The price cannot be less than or equal to zero.");
+        if (numericPrice <= 0) {
+            showError("Price must be greater than zero");
             return;
         }
 
         try {
-            await createProduct({ name, price });
-            showSuccess("Product added successfully");
+
+            if (editingProduct) {
+                await updateProduct(editingProduct.id, {
+                    name,
+                    price: numericPrice
+                });
+                showSuccess("Product updated");
+            } else {
+                await createProduct({
+                    name,
+                    price: numericPrice
+                });
+                showSuccess("Product added");
+            }
+
             setName("");
             setPrice("");
-
+            setEditingProduct(null);
             setOpen(false);
 
             load();
+
         } catch {
-            showError("Error adding product");
+            showError("Error saving product");
         }
     }
+
 
     async function handleDelete(id) {
         try {
@@ -75,6 +94,13 @@ export default function ProductsPage() {
         }
     }
 
+    function handleEdit(product) {
+        setEditingProduct(product);
+        setName(product.name);
+        setPrice(product.price);
+        setOpen(true);
+    }
+
     return (
         <Box>
 
@@ -83,7 +109,15 @@ export default function ProductsPage() {
 
                 <DialogRoot open={open} onOpenChange={(e) => setOpen(e.open)}>
 
-                    <Button colorScheme="blue" onClick={() => setOpen(true)}>
+                    <Button
+                        colorScheme="blue"
+                        onClick={() => {
+                            setEditingProduct(null);
+                            setName("");
+                            setPrice("");
+                            setOpen(true);
+                        }}
+                    >
                         New Product
                     </Button>
 
@@ -94,7 +128,9 @@ export default function ProductsPage() {
                         <DialogContent>
 
                             <DialogHeader>
-                                <Heading size="md">Create Product</Heading>
+                                <Heading size="md">
+                                    {editingProduct ? "Edit Product" : "Create Product"}
+                                </Heading>
                             </DialogHeader>
 
                             <DialogBody>
@@ -115,7 +151,7 @@ export default function ProductsPage() {
                             </DialogBody>
 
                             <DialogFooter>
-                                <Button colorScheme="blue" onClick={handleCreate}>
+                                <Button colorScheme="blue" onClick={handleSave}>
                                     Save
                                 </Button>
                             </DialogFooter>
@@ -131,11 +167,11 @@ export default function ProductsPage() {
                         key={p.id}
                         title={p.name}
                         subtitle={`$${p.price}`}
+                        onEdit={() => handleEdit(p)}
                         onDelete={() => handleDelete(p.id)}
                     />
                 ))}
             </SimpleGrid>
-
         </Box>
     );
 }

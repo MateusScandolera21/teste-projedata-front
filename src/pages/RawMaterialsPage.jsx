@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import {
     getRawMaterials,
     createRawMaterial,
-    deleteRawMaterial
+    deleteRawMaterial,
+    updateRawMaterial
 } from "../services/api";
 
 import {
@@ -35,6 +36,7 @@ export default function RawMaterialsPage() {
     const [name, setName] = useState("");
     const [stockQuantity, setStockQuantity] = useState("");
     const [open, setOpen] = useState(false);
+    const [editingMaterial, setEditingMaterial] = useState(null);
 
     function load() {
         getRawMaterials().then(setMaterials);
@@ -44,7 +46,7 @@ export default function RawMaterialsPage() {
         load();
     }, []);
 
-    async function handleCreate() {
+    async function handleSave() {
 
         const numericStock = Number(stockQuantity);
 
@@ -54,29 +56,38 @@ export default function RawMaterialsPage() {
         }
 
         if (numericStock <= 0) {
-            showError("Stock cannot be less than or equal to zero");
+            showError("Stock must be greater than zero");
             return;
         }
 
         try {
-            await createRawMaterial({
-                name,
-                stockQuantity: numericStock
-            });
 
-            showSuccess("Stock added");
+            if (editingMaterial) {
+                await updateRawMaterial(editingMaterial.id, {
+                    name,
+                    stockQuantity: numericStock
+                });
+                showSuccess("Material updated");
+            } else {
+                await createRawMaterial({
+                    name,
+                    stockQuantity: numericStock
+                });
+                showSuccess("Material added");
+            }
 
             setName("");
             setStockQuantity("");
-
+            setEditingMaterial(null);
             setOpen(false);
 
             load();
-        }
-        catch {
-            showError("Error adding stock");
+
+        } catch {
+            showError("Error saving material");
         }
     }
+
 
     async function handleDelete(id) {
         try {
@@ -89,6 +100,14 @@ export default function RawMaterialsPage() {
         }
     }
 
+    function handleEdit(material) {
+        setEditingMaterial(material);
+        setName(material.name);
+        setStockQuantity(String(material.stockQuantity));
+        setOpen(true);
+    }
+
+
     return (
         <Box>
 
@@ -98,7 +117,7 @@ export default function RawMaterialsPage() {
                 <DialogRoot open={open} onOpenChange={(e) => setOpen(e.open)}>
 
                     <Button colorScheme="blue" onClick={() => setOpen(true)}>
-                        New Product
+                        New Raw Material
                     </Button>
 
                     <DialogBackdrop />
@@ -129,7 +148,7 @@ export default function RawMaterialsPage() {
                             </DialogBody>
 
                             <DialogFooter>
-                                <Button colorScheme="blue" onClick={handleCreate}>
+                                <Button colorScheme="blue" onClick={handleSave}>
                                     Save
                                 </Button>
                             </DialogFooter>
@@ -148,6 +167,7 @@ export default function RawMaterialsPage() {
                         key={m.id}
                         title={m.name}
                         subtitle={`Stock: ${m.stockQuantity}`}
+                        onEdit={() => handleEdit(m)}
                         onDelete={() => handleDelete(m.id)}
                     />
                 ))}

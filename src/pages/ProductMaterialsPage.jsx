@@ -4,7 +4,8 @@ import {
     createProductMaterial,
     deleteProductMaterial,
     getProducts,
-    getRawMaterials
+    getRawMaterials,
+    updateProductMaterial
 } from "../services/api";
 
 import {
@@ -41,7 +42,8 @@ export default function ProductMaterialsPage() {
     const [rawMaterialId, setRawMaterialId] = useState("");
     const [requiredQuantity, setRequiredQuantity] = useState("");
     const [open, setOpen] = useState(false);
-    
+    const [editingRelation, setEditingRelation] = useState(null);
+
     function load() {
         getProductMaterials().then(setRelations);
         getProducts().then(setProducts);
@@ -52,7 +54,7 @@ export default function ProductMaterialsPage() {
         load();
     }, []);
 
-    async function handleCreate() {
+    async function handleSave() {
 
         const numericQty = Number(requiredQuantity);
 
@@ -67,22 +69,34 @@ export default function ProductMaterialsPage() {
         }
 
         try {
-            await createProductMaterial({
-                productId,
-                rawMaterialId,
-                requiredQuantity: numericQty
-            });
 
-            showSuccess("Relation added");
+            if (editingRelation) {
+                await updateProductMaterial(editingRelation.id, {
+                    productId,
+                    rawMaterialId,
+                    requiredQuantity: numericQty
+                });
+                showSuccess("Relation updated");
+            } else {
+                await createProductMaterial({
+                    productId,
+                    rawMaterialId,
+                    requiredQuantity: numericQty
+                });
+                showSuccess("Relation added");
+            }
 
             setRequiredQuantity("");
+            setEditingRelation(null);
             setOpen(false);
 
             load();
+
         } catch {
-            showError("Error adding relation");
+            showError("Error saving relation");
         }
     }
+
 
     async function handleDelete(id) {
         try {
@@ -93,6 +107,15 @@ export default function ProductMaterialsPage() {
             showError("Error removing relation");
         }
     }
+
+    function handleEdit(r) {
+        setEditingRelation(r);
+        setProductId(String(r.product.id));
+        setRawMaterialId(String(r.rawMaterial.id));
+        setRequiredQuantity(String(r.requiredQuantity));
+        setOpen(true);
+    }
+
 
     return (
         <Box>
@@ -166,7 +189,7 @@ export default function ProductMaterialsPage() {
                             </DialogBody>
 
                             <DialogFooter>
-                                <Button colorScheme="blue" onClick={handleCreate}>
+                                <Button colorScheme="blue" onClick={handleSave}>
                                     Save
                                 </Button>
                             </DialogFooter>
@@ -185,6 +208,7 @@ export default function ProductMaterialsPage() {
                         key={r.id}
                         title={r.product?.name || "Product"}
                         subtitle={`${r.rawMaterial?.name} - Qty: ${r.requiredQuantity}`}
+                        onEdit={() => handleEdit(r)}
                         onDelete={() => handleDelete(r.id)}
                     />
                 ))}

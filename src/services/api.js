@@ -23,6 +23,22 @@ export async function createProduct(product) {
     });
 }
 
+export async function updateProduct(id, data) {
+    const response = await fetch(`${API_URL}/products/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to update product");
+    }
+
+    return response.json();
+}
+
 export async function deleteProduct(id) {
     return fetch(`${API_URL}/products/${id}`, {
         method: "DELETE"
@@ -35,6 +51,19 @@ export async function createRawMaterial(material) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(material)
     });
+}
+
+export async function updateRawMaterial(id, data) {
+    const response = await fetch(`${API_URL}/raw-materials/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) throw new Error("Failed to update material");
+    return response.json();
 }
 
 export async function deleteRawMaterial(id) {
@@ -59,4 +88,17 @@ export async function deleteProductMaterial(id) {
     return fetch(`${API_URL}/product-materials/${id}`, {
         method: "DELETE"
     });
+}
+
+export async function updateProductMaterial(id, data) {
+    const response = await fetch(`${API_URL}/product-materials/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) throw new Error("Failed to update relation");
+    return response.json();
 }
