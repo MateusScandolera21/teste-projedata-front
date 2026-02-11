@@ -7,7 +7,18 @@ import {
     Input,
     Button,
     VStack,
-    Grid
+    Flex
+} from "@chakra-ui/react";
+
+import {
+    DialogRoot,
+    DialogTrigger,
+    DialogBackdrop,
+    DialogPositioner,
+    DialogContent,
+    DialogHeader,
+    DialogBody,
+    DialogFooter
 } from "@chakra-ui/react";
 
 import EntityCard from "../components/EntityCard";
@@ -19,6 +30,7 @@ export default function ProductsPage() {
     const [products, setProducts] = useState([]);
     const [name, setName] = useState("");
     const [price, setPrice] = useState("");
+    const [open, setOpen] = useState(false);
 
     function load() {
         getProducts().then(setProducts);
@@ -44,6 +56,9 @@ export default function ProductsPage() {
             showSuccess("Product added successfully");
             setName("");
             setPrice("");
+
+            setOpen(false);
+
             load();
         } catch {
             showError("Error adding product");
@@ -63,57 +78,63 @@ export default function ProductsPage() {
     return (
         <Box>
 
-            <Heading mb={6}>Products</Heading>
+            <Flex justify="space-between" align="center" mb={6}>
+                <Heading>Products</Heading>
 
-            <Grid
-                templateColumns={{ base: "1fr", md: "300px 1fr" }}
-                gap={6}
-                alignItems="start"
-            >
-                <Box
-                    borderWidth="1px"
-                    borderRadius="md"
-                    p={4}
-                    bg="gray.50"
-                    position={{ md: "sticky" }}
-                    top={{ md: "20px" }}
-                >
-                    <VStack align="stretch" gap={3}>
-                        <Input
-                            placeholder="Product name"
-                            value={name}
-                            onChange={e => setName(e.target.value)}
-                        />
+                <DialogRoot open={open} onOpenChange={(e) => setOpen(e.open)}>
 
-                        <Input
-                            placeholder="Price"
-                            type="number"
-                            value={price}
-                            onChange={e => setPrice(e.target.value)}
-                        />
+                    <Button colorScheme="blue" onClick={() => setOpen(true)}>
+                        New Product
+                    </Button>
 
-                        <Button colorScheme="blue" onClick={handleCreate}>
-                            Add Product
-                        </Button>
-                    </VStack>
-                </Box>
+                    <DialogBackdrop />
 
-                <SimpleGrid
-                    columns={{ base: 1, md: 2, xl: 3 }}
-                    spacing={4}
-                >
-                    {products.map(p => (
-                        <EntityCard
-                            key={p.id}
-                            title={p.name}
-                            subtitle={`$${p.price}`}
-                            onEdit={() => { }}
-                            onDelete={() => handleDelete(p.id)}
-                        />
-                    ))}
-                </SimpleGrid>
+                    <DialogPositioner>
 
-            </Grid>
+                        <DialogContent>
+
+                            <DialogHeader>
+                                <Heading size="md">Create Product</Heading>
+                            </DialogHeader>
+
+                            <DialogBody>
+                                <VStack gap={3}>
+                                    <Input
+                                        placeholder="Product name"
+                                        value={name}
+                                        onChange={e => setName(e.target.value)}
+                                    />
+
+                                    <Input
+                                        placeholder="Price"
+                                        type="number"
+                                        value={price}
+                                        onChange={e => setPrice(e.target.value)}
+                                    />
+                                </VStack>
+                            </DialogBody>
+
+                            <DialogFooter>
+                                <Button colorScheme="blue" onClick={handleCreate}>
+                                    Save
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </DialogPositioner>
+                </DialogRoot>
+
+            </Flex>
+
+            <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={4}>
+                {products.map(p => (
+                    <EntityCard
+                        key={p.id}
+                        title={p.name}
+                        subtitle={`$${p.price}`}
+                        onDelete={() => handleDelete(p.id)}
+                    />
+                ))}
+            </SimpleGrid>
 
         </Box>
     );

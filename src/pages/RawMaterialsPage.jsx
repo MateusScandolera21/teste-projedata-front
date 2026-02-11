@@ -11,7 +11,19 @@ import {
     Input,
     Button,
     VStack,
-    SimpleGrid
+    SimpleGrid,
+    Flex
+} from "@chakra-ui/react";
+
+import {
+    DialogRoot,
+    DialogTrigger,
+    DialogBackdrop,
+    DialogPositioner,
+    DialogContent,
+    DialogHeader,
+    DialogBody,
+    DialogFooter
 } from "@chakra-ui/react";
 
 import EntityCard from "../components/EntityCard";
@@ -22,6 +34,7 @@ export default function RawMaterialsPage() {
     const [materials, setMaterials] = useState([]);
     const [name, setName] = useState("");
     const [stockQuantity, setStockQuantity] = useState("");
+    const [open, setOpen] = useState(false);
 
     function load() {
         getRawMaterials().then(setMaterials);
@@ -46,16 +59,17 @@ export default function RawMaterialsPage() {
         }
 
         try {
-            console.log(numericStock);
             await createRawMaterial({
                 name,
                 stockQuantity: numericStock
             });
 
-            showSuccess("Stock added")
+            showSuccess("Stock added");
 
             setName("");
             setStockQuantity("");
+
+            setOpen(false);
 
             load();
         }
@@ -63,7 +77,6 @@ export default function RawMaterialsPage() {
             showError("Error adding stock");
         }
     }
-
 
     async function handleDelete(id) {
         try {
@@ -78,38 +91,68 @@ export default function RawMaterialsPage() {
 
     return (
         <Box>
-            <Heading mb={4}>Raw Materials</Heading>
 
-            <VStack align="start" mb={6} maxW="300px">
-                <Input
-                    placeholder="Material name"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                />
+            <Flex justify="space-between" align="center" mb={6}>
+                <Heading>Raw Materials</Heading>
 
-                <Input
-                    placeholder="Stock quantity"
-                    type="number"
-                    value={stockQuantity}
-                    onChange={e => setStockQuantity(e.target.value)}
-                />
+                <DialogRoot open={open} onOpenChange={(e) => setOpen(e.open)}>
 
-                <Button colorScheme="blue" onClick={handleCreate}>
-                    Add Material
-                </Button>
-            </VStack>
+                    <Button colorScheme="blue" onClick={() => setOpen(true)}>
+                        New Product
+                    </Button>
 
-            <SimpleGrid columns={[1, 2, 3]} spacing={4}>
+                    <DialogBackdrop />
+
+                    <DialogPositioner>
+
+                        <DialogContent>
+
+                            <DialogHeader>
+                                <Heading size="md">Create Raw Material</Heading>
+                            </DialogHeader>
+
+                            <DialogBody>
+                                <VStack gap={3}>
+                                    <Input
+                                        placeholder="Material name"
+                                        value={name}
+                                        onChange={e => setName(e.target.value)}
+                                    />
+
+                                    <Input
+                                        placeholder="Stock quantity"
+                                        type="number"
+                                        value={stockQuantity}
+                                        onChange={e => setStockQuantity(e.target.value)}
+                                    />
+                                </VStack>
+                            </DialogBody>
+
+                            <DialogFooter>
+                                <Button colorScheme="blue" onClick={handleCreate}>
+                                    Save
+                                </Button>
+                            </DialogFooter>
+
+                        </DialogContent>
+
+                    </DialogPositioner>
+
+                </DialogRoot>
+
+            </Flex>
+
+            <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={4}>
                 {materials.map(m => (
                     <EntityCard
                         key={m.id}
                         title={m.name}
                         subtitle={`Stock: ${m.stockQuantity}`}
-                        onEdit={() => { }}
                         onDelete={() => handleDelete(m.id)}
                     />
                 ))}
             </SimpleGrid>
+
         </Box>
     );
 }

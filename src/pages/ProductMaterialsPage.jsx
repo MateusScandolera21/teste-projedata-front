@@ -14,10 +14,22 @@ import {
     VStack,
     SimpleGrid,
     Input,
-    Grid
+    Flex
+} from "@chakra-ui/react";
+
+import {
+    DialogRoot,
+    DialogTrigger,
+    DialogBackdrop,
+    DialogPositioner,
+    DialogContent,
+    DialogHeader,
+    DialogBody,
+    DialogFooter
 } from "@chakra-ui/react";
 
 import EntityCard from "../components/EntityCard";
+import { showSuccess, showError } from "../components/toast";
 
 export default function ProductMaterialsPage() {
 
@@ -28,7 +40,8 @@ export default function ProductMaterialsPage() {
     const [productId, setProductId] = useState("");
     const [rawMaterialId, setRawMaterialId] = useState("");
     const [requiredQuantity, setRequiredQuantity] = useState("");
-
+    const [open, setOpen] = useState(false);
+    
     function load() {
         getProductMaterials().then(setRelations);
         getProducts().then(setProducts);
@@ -40,111 +53,142 @@ export default function ProductMaterialsPage() {
     }, []);
 
     async function handleCreate() {
-        await createProductMaterial({
-            productId,
-            rawMaterialId,
-            requiredQuantity
-        });
 
-        setRequiredQuantity("");
-        load();
+        const numericQty = Number(requiredQuantity);
+
+        if (!productId || !rawMaterialId || !requiredQuantity) {
+            showError("Fill all fields");
+            return;
+        }
+
+        if (numericQty <= 0) {
+            showError("Quantity must be greater than zero");
+            return;
+        }
+
+        try {
+            await createProductMaterial({
+                productId,
+                rawMaterialId,
+                requiredQuantity: numericQty
+            });
+
+            showSuccess("Relation added");
+
+            setRequiredQuantity("");
+            setOpen(false);
+
+            load();
+        } catch {
+            showError("Error adding relation");
+        }
     }
 
     async function handleDelete(id) {
-        await deleteProductMaterial(id);
-        load();
+        try {
+            await deleteProductMaterial(id);
+            showSuccess("Relation removed");
+            load();
+        } catch {
+            showError("Error removing relation");
+        }
     }
 
     return (
         <Box>
 
-            <Heading mb={6}>Product Materials</Heading>
+            <Flex justify="space-between" align="center" mb={6}>
+                <Heading>Product Materials</Heading>
 
-            {/* 🔥 GRID RESPONSIVO */}
-            <Grid
-                templateColumns={{ base: "1fr", md: "320px 1fr" }}
-                gap={6}
-                alignItems="start"
-            >
+                <DialogRoot open={open} onOpenChange={(e) => setOpen(e.open)}>
 
-                {/* 🧾 FORM PANEL LATERAL */}
-                <Box
-                    borderWidth="1px"
-                    borderRadius="md"
-                    p={4}
-                    bg="gray.50"
-                    position={{ md: "sticky" }}
-                    top={{ md: "20px" }}
-                >
-                    <VStack align="stretch" gap={3}>
+                    <Button colorScheme="blue" onClick={() => setOpen(true)}>
+                        New Product
+                    </Button>
 
-                        <select
-                            value={productId}
-                            onChange={e => setProductId(e.target.value)}
-                            style={{
-                                padding: "8px",
-                                borderRadius: "6px",
-                                border: "1px solid #ccc",
-                                width: "100%"
-                            }}
-                        >
-                            <option value="">Select product</option>
-                            {products.map(p => (
-                                <option key={p.id} value={p.id}>
-                                    {p.name}
-                                </option>
-                            ))}
-                        </select>
+                    <DialogBackdrop />
 
-                        <select
-                            value={rawMaterialId}
-                            onChange={e => setRawMaterialId(e.target.value)}
-                            style={{
-                                padding: "8px",
-                                borderRadius: "6px",
-                                border: "1px solid #ccc",
-                                width: "100%"
-                            }}
-                        >
-                            <option value="">Select raw material</option>
-                            {materials.map(m => (
-                                <option key={m.id} value={m.id}>
-                                    {m.name}
-                                </option>
-                            ))}
-                        </select>
+                    <DialogPositioner>
 
-                        <Input
-                            placeholder="Required quantity"
-                            type="number"
-                            value={requiredQuantity}
-                            onChange={e => setRequiredQuantity(e.target.value)}
-                        />
+                        <DialogContent>
 
-                        <Button colorScheme="blue" onClick={handleCreate}>
-                            Add Relation
-                        </Button>
+                            <DialogHeader>
+                                <Heading size="md">Create Relation</Heading>
+                            </DialogHeader>
 
-                    </VStack>
-                </Box>
+                            <DialogBody>
+                                <VStack gap={3}>
 
-                {/* 🧩 CARDS GRID */}
-                <SimpleGrid
-                    columns={{ base: 1, md: 2, xl: 3 }}
-                    spacing={4}
-                >
-                    {relations.map(r => (
-                        <EntityCard
-                            key={r.id}
-                            title={r.product?.name || "Product"}
-                            subtitle={`${r.rawMaterial?.name} - Qty: ${r.requiredQuantity}`}
-                            onEdit={() => { }}
-                            onDelete={() => handleDelete(r.id)}
-                        />
-                    ))}
-                </SimpleGrid>
+                                    <select
+                                        value={productId}
+                                        onChange={e => setProductId(e.target.value)}
+                                        style={{
+                                            padding: "8px",
+                                            borderRadius: "6px",
+                                            border: "1px solid #ccc",
+                                            width: "100%"
+                                        }}
+                                    >
+                                        <option value="">Select product</option>
+                                        {products.map(p => (
+                                            <option key={p.id} value={p.id}>
+                                                {p.name}
+                                            </option>
+                                        ))}
+                                    </select>
 
-            </Grid>
+                                    <select
+                                        value={rawMaterialId}
+                                        onChange={e => setRawMaterialId(e.target.value)}
+                                        style={{
+                                            padding: "8px",
+                                            borderRadius: "6px",
+                                            border: "1px solid #ccc",
+                                            width: "100%"
+                                        }}
+                                    >
+                                        <option value="">Select raw material</option>
+                                        {materials.map(m => (
+                                            <option key={m.id} value={m.id}>
+                                                {m.name}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    <Input
+                                        placeholder="Required quantity"
+                                        type="number"
+                                        value={requiredQuantity}
+                                        onChange={e => setRequiredQuantity(e.target.value)}
+                                    />
+
+                                </VStack>
+                            </DialogBody>
+
+                            <DialogFooter>
+                                <Button colorScheme="blue" onClick={handleCreate}>
+                                    Save
+                                </Button>
+                            </DialogFooter>
+
+                        </DialogContent>
+
+                    </DialogPositioner>
+
+                </DialogRoot>
+
+            </Flex>
+
+            <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={4}>
+                {relations.map(r => (
+                    <EntityCard
+                        key={r.id}
+                        title={r.product?.name || "Product"}
+                        subtitle={`${r.rawMaterial?.name} - Qty: ${r.requiredQuantity}`}
+                        onDelete={() => handleDelete(r.id)}
+                    />
+                ))}
+            </SimpleGrid>
 
         </Box>
     );
