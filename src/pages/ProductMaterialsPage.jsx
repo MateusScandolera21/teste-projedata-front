@@ -59,12 +59,12 @@ export default function ProductMaterialsPage() {
         const numericQty = Number(requiredQuantity);
 
         if (!productId || !rawMaterialId || !requiredQuantity) {
-            showError("Fill all fields");
+            showError("Preencha todos os campos");
             return;
         }
 
         if (numericQty <= 0) {
-            showError("Quantity must be greater than zero");
+            showError("A quantidade deve ser maior que zero");
             return;
         }
 
@@ -76,14 +76,14 @@ export default function ProductMaterialsPage() {
                     rawMaterialId,
                     requiredQuantity: numericQty
                 });
-                showSuccess("Relation updated");
+                showSuccess("Relação atualizada");
             } else {
                 await createProductMaterial({
                     productId,
                     rawMaterialId,
                     requiredQuantity: numericQty
                 });
-                showSuccess("Relation added");
+                showSuccess("Relação atualizada");
             }
 
             setRequiredQuantity("");
@@ -93,18 +93,17 @@ export default function ProductMaterialsPage() {
             load();
 
         } catch {
-            showError("Error saving relation");
+            showError("Erro ao salvar relação");
         }
     }
-
-
+    
     async function handleDelete(id) {
         try {
             await deleteProductMaterial(id);
-            showSuccess("Relation removed");
+            showSuccess("Relação removida");
             load();
         } catch {
-            showError("Error removing relation");
+            showError("Erro ao remover relação");
         }
     }
 
@@ -121,12 +120,12 @@ export default function ProductMaterialsPage() {
         <Box>
 
             <Flex justify="space-between" align="center" mb={6}>
-                <Heading>Product Materials</Heading>
+                <Heading>Relação dos Produtos</Heading>
 
                 <DialogRoot open={open} onOpenChange={(e) => setOpen(e.open)}>
 
                     <Button colorScheme="blue" onClick={() => setOpen(true)}>
-                        New Product
+                        Nova Relação
                     </Button>
 
                     <DialogBackdrop />
@@ -136,7 +135,7 @@ export default function ProductMaterialsPage() {
                         <DialogContent>
 
                             <DialogHeader>
-                                <Heading size="md">Create Relation</Heading>
+                                <Heading size="md">Criar Relação</Heading>
                             </DialogHeader>
 
                             <DialogBody>
@@ -152,7 +151,7 @@ export default function ProductMaterialsPage() {
                                             width: "100%"
                                         }}
                                     >
-                                        <option value="">Select product</option>
+                                        <option value="">Selecionar Produto</option>
                                         {products.map(p => (
                                             <option key={p.id} value={p.id}>
                                                 {p.name}
@@ -170,7 +169,7 @@ export default function ProductMaterialsPage() {
                                             width: "100%"
                                         }}
                                     >
-                                        <option value="">Select raw material</option>
+                                        <option value="">Selecionar Matéria-Prima</option>
                                         {materials.map(m => (
                                             <option key={m.id} value={m.id}>
                                                 {m.name}
@@ -179,7 +178,7 @@ export default function ProductMaterialsPage() {
                                     </select>
 
                                     <Input
-                                        placeholder="Required quantity"
+                                        placeholder="Quantidade Requerida"
                                         type="number"
                                         value={requiredQuantity}
                                         onChange={e => setRequiredQuantity(e.target.value)}
@@ -190,7 +189,7 @@ export default function ProductMaterialsPage() {
 
                             <DialogFooter>
                                 <Button colorScheme="blue" onClick={handleSave}>
-                                    Save
+                                    Salvar
                                 </Button>
                             </DialogFooter>
 

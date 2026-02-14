@@ -15,23 +15,23 @@ export default function Layout({ children, setPage }) {
                 justify="space-between"
                 align="center"
             >
-                <Heading size="md">Production System</Heading>
+                <Heading size="md">Sistema de Produção</Heading>
 
                 <Flex gap={2} wrap="wrap">
                     <Button size="sm" colorScheme="whiteAlpha" onClick={() => setPage("products")}>
-                        Products
+                        Produtos
                     </Button>
 
                     <Button size="sm" colorScheme="whiteAlpha" onClick={() => setPage("materials")}>
-                        Raw Materials
+                        Matérias-Primas
                     </Button>
 
                     <Button size="sm" colorScheme="whiteAlpha" onClick={() => setPage("relations")}>
-                        Relations
+                        Relações
                     </Button>
 
                     <Button size="sm" colorScheme="whiteAlpha" onClick={() => setPage("production")}>
-                        Production
+                        Produção
                     </Button>
                 </Flex>
             </Flex>

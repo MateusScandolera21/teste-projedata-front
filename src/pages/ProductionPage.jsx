@@ -19,12 +19,12 @@ export default function ProductionPage() {
             .catch(err => console.error(err));
     }, []);
 
-    if (!data) return <Text>Loading...</Text>;
+    if (!data) return <Text>Carregando...</Text>;
 
     return (
         <Box>
 
-            <Heading mb={6}>Production Dashboard</Heading>
+            <Heading mb={6}>Dashboard de Produção</Heading>
 
             <Grid gap={6}>
 
@@ -35,7 +35,7 @@ export default function ProductionPage() {
                     bg="blue.50"
                 >
                     <Text fontSize="sm" color="gray.600">
-                        Total Production Value
+                        Valor Total de Produção
                     </Text>
 
                     <Heading size="lg">
@@ -61,11 +61,11 @@ export default function ProductionPage() {
                             </Heading>
 
                             <Text fontSize="sm" color="gray.600">
-                                Quantity: {p.quantity}
+                                Quantidade: {p.quantity}
                             </Text>
 
                             <Text fontSize="sm" color="gray.600">
-                                Price: ${p.price}
+                                Preço: ${p.price}
                             </Text>
                         </Box>
                     ))}

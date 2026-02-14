@@ -46,12 +46,12 @@ export default function ProductsPage() {
         const numericPrice = Number(price);
 
         if (!name || !price) {
-            showError("Fill all fields");
+            showError("Preencha todos os campos");
             return;
         }
 
         if (numericPrice <= 0) {
-            showError("Price must be greater than zero");
+            showError("Preço deve ser maior que zero");
             return;
         }
 
@@ -62,13 +62,13 @@ export default function ProductsPage() {
                     name,
                     price: numericPrice
                 });
-                showSuccess("Product updated");
+                showSuccess("Produto atualizado");
             } else {
                 await createProduct({
                     name,
                     price: numericPrice
                 });
-                showSuccess("Product added");
+                showSuccess("Produto adicionado");
             }
 
             setName("");
@@ -78,8 +78,8 @@ export default function ProductsPage() {
 
             load();
 
-        } catch {
-            showError("Error saving product");
+        } catch (error) {
+            showError("Erro ao salvar produto");
         }
     }
 
@@ -87,10 +87,10 @@ export default function ProductsPage() {
     async function handleDelete(id) {
         try {
             await deleteProduct(id);
-            showSuccess("Product removed");
+            showSuccess("Produto removido");
             load();
-        } catch {
-            showError("Cannot delete this product");
+        } catch (error) {
+            showError("Não é possível remover este produto, ele pode estar relacionado a uma produção");
         }
     }
 
@@ -105,7 +105,7 @@ export default function ProductsPage() {
         <Box>
 
             <Flex justify="space-between" align="center" mb={6}>
-                <Heading>Products</Heading>
+                <Heading>Produtos</Heading>
 
                 <DialogRoot open={open} onOpenChange={(e) => setOpen(e.open)}>
 
@@ -118,7 +118,7 @@ export default function ProductsPage() {
                             setOpen(true);
                         }}
                     >
-                        New Product
+                        Novo Produto
                     </Button>
 
                     <DialogBackdrop />
@@ -129,20 +129,20 @@ export default function ProductsPage() {
 
                             <DialogHeader>
                                 <Heading size="md">
-                                    {editingProduct ? "Edit Product" : "Create Product"}
+                                    {editingProduct ? "Editar Produto" : "Criar Produto"}
                                 </Heading>
                             </DialogHeader>
 
                             <DialogBody>
                                 <VStack gap={3}>
                                     <Input
-                                        placeholder="Product name"
+                                        placeholder="Nome do Produto"
                                         value={name}
                                         onChange={e => setName(e.target.value)}
                                     />
 
                                     <Input
-                                        placeholder="Price"
+                                        placeholder="Preço"
                                         type="number"
                                         value={price}
                                         onChange={e => setPrice(e.target.value)}
@@ -152,7 +152,7 @@ export default function ProductsPage() {
 
                             <DialogFooter>
                                 <Button colorScheme="blue" onClick={handleSave}>
-                                    Save
+                                    Salvar
                                 </Button>
                             </DialogFooter>
                         </DialogContent>

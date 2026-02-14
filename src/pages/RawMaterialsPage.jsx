@@ -51,12 +51,12 @@ export default function RawMaterialsPage() {
         const numericStock = Number(stockQuantity);
 
         if (!name || !stockQuantity) {
-            showError("Fill all fields");
+            showError("Preencha todos os campos");
             return;
         }
 
         if (numericStock <= 0) {
-            showError("Stock must be greater than zero");
+            showError("Quantidade em estoque deve ser maior que zero");
             return;
         }
 
@@ -67,13 +67,13 @@ export default function RawMaterialsPage() {
                     name,
                     stockQuantity: numericStock
                 });
-                showSuccess("Material updated");
+                showSuccess("Material atualizado");
             } else {
                 await createRawMaterial({
                     name,
                     stockQuantity: numericStock
                 });
-                showSuccess("Material added");
+                showSuccess("Material adicionado");
             }
 
             setName("");
@@ -83,8 +83,8 @@ export default function RawMaterialsPage() {
 
             load();
 
-        } catch {
-            showError("Error saving material");
+        } catch (error) {
+            showError("Erro ao salvar material");
         }
     }
 
@@ -92,11 +92,11 @@ export default function RawMaterialsPage() {
     async function handleDelete(id) {
         try {
             await deleteRawMaterial(id);
-            showSuccess("Stock removed");
+            showSuccess("Material removido");
             load();
         }
-        catch {
-            showError("Error removing stock");
+        catch (error) {
+            showError("Erro ao remover material, ele pode estar relacionado a um produto");
         }
     }
 
@@ -112,12 +112,12 @@ export default function RawMaterialsPage() {
         <Box>
 
             <Flex justify="space-between" align="center" mb={6}>
-                <Heading>Raw Materials</Heading>
+                <Heading>Matérias-Primas</Heading>
 
                 <DialogRoot open={open} onOpenChange={(e) => setOpen(e.open)}>
 
                     <Button colorScheme="blue" onClick={() => setOpen(true)}>
-                        New Raw Material
+                        Nova Matéria-Prima
                     </Button>
 
                     <DialogBackdrop />
@@ -127,19 +127,19 @@ export default function RawMaterialsPage() {
                         <DialogContent>
 
                             <DialogHeader>
-                                <Heading size="md">Create Raw Material</Heading>
+                                <Heading size="md">Criar Matéria-Prima</Heading>
                             </DialogHeader>
 
                             <DialogBody>
                                 <VStack gap={3}>
                                     <Input
-                                        placeholder="Material name"
+                                        placeholder="Nome do Material"
                                         value={name}
                                         onChange={e => setName(e.target.value)}
                                     />
 
                                     <Input
-                                        placeholder="Stock quantity"
+                                        placeholder="Quantidade em Estoque"
                                         type="number"
                                         value={stockQuantity}
                                         onChange={e => setStockQuantity(e.target.value)}
@@ -149,7 +149,7 @@ export default function RawMaterialsPage() {
 
                             <DialogFooter>
                                 <Button colorScheme="blue" onClick={handleSave}>
-                                    Save
+                                    Salvar
                                 </Button>
                             </DialogFooter>
 
